@@ -796,6 +796,111 @@ window.addEventListener('click', function (event) {
 
   localStorage.setItem('mamKidsRecipient', JSON.stringify(recipient));
 }, true);
+</script><script>
+(function () {
+  if (new URLSearchParams(location.search).get('mode') !== 'cart') return;
+
+  let cart = [];
+  try {
+    cart = JSON.parse(localStorage.getItem('mamKidsCheckoutCart')) || [];
+  } catch (error) {}
+  if (!Array.isArray(cart) || !cart.length) return;
+
+  const heading = [...document.querySelectorAll('h3')]
+    .find(el => el.textContent.includes('Đơn hàng của bạn'));
+  const summary = heading && heading.closest('.shadow-md');
+  if (!summary) return;
+
+  const titles = [...summary.querySelectorAll('h4')]
+    .filter(el => !el.textContent.toLowerCase().includes('canvas'));
+  if (!titles.length) return;
+
+  function findRow(title) {
+    let node = title.parentElement;
+    while (node && node !== summary) {
+      if (node.querySelector('img')) return node;
+      node = node.parentElement;
+    }
+    return null;
+  }
+
+  const firstRow = findRow(titles[0]);
+  if (!firstRow) return;
+
+  const template = firstRow.cloneNode(true);
+  const marker = document.createElement('div');
+  firstRow.before(marker);
+
+  titles.forEach(title => {
+    const row = findRow(title);
+    if (row) row.remove();
+  });
+
+  const money = value =>
+    new Intl.NumberFormat('vi-VN').format(value) + 'đ';
+
+  cart.forEach(item => {
+    const row = template.cloneNode(true);
+    const title = row.querySelector('h4');
+    const image = row.querySelector('img');
+    const options = row.querySelector('p');
+    const quantity = row.querySelector('.absolute');
+
+    title.textContent = item.name;
+    if (title.nextElementSibling) {
+      title.nextElementSibling.textContent =
+        money(item.price * item.quantity);
+    }
+    if (image) {
+      image.src = item.image;
+      image.alt = item.name;
+    }
+    if (options) {
+      options.textContent = item.size + ' • ' + item.color;
+    }
+    if (quantity) quantity.textContent = 'x' + item.quantity;
+
+    row.querySelectorAll('.inline-flex').forEach(el => el.remove());
+    marker.append(row);
+  });
+
+  const quantity = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const subtotal = cart.reduce(
+    (sum, item) => sum + item.price * item.quantity, 0);
+  const discount = Math.round(subtotal * 0.1);
+  const total = subtotal - discount;
+
+  heading.textContent =
+    'Đơn hàng của bạn (' + quantity + ' sản phẩm + 1 quà tặng)';
+
+  function update(prefix, value) {
+    const label = [...summary.querySelectorAll('span')]
+      .find(el => el.textContent.trim().startsWith(prefix));
+    if (!label) return;
+    let row = label.parentElement;
+    while (row && !row.classList.contains('justify-between')) {
+      row = row.parentElement;
+    }
+    if (row) row.lastElementChild.textContent = value;
+  }
+
+  update('Tạm tính', money(subtotal));
+  update('Mã ưu đãi (MAMKIDS10)', '-' + money(discount));
+
+  const totalLabel = [...summary.querySelectorAll('span')]
+    .find(el => el.textContent.trim() === 'Tổng thanh toán');
+  if (totalLabel) {
+    const amount = totalLabel.parentElement.parentElement
+      .querySelector('.text-primary');
+    if (amount) amount.textContent = money(total);
+  }
+
+  summary.querySelectorAll('button span').forEach(el => {
+    if (el.textContent.includes('Đặt hàng ngay')) {
+      el.textContent = 'Đặt hàng ngay (' + money(total) + ')';
+    }
+  });
+})();
 </script>/body>
     </html>
 
