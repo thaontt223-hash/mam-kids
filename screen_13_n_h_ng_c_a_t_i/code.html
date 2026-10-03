@@ -613,4 +613,134 @@ document.querySelectorAll('a').forEach(function (link) {
   }
 });
 </script>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      /body></html>
+ <<script>
+(function () {
+  let item, recipient;
+  try {
+    item = JSON.parse(localStorage.getItem('mamKidsBuyNow'));
+    recipient = JSON.parse(localStorage.getItem('mamKidsRecipient'));
+  } catch (error) {
+    return;
+  }
+  if (!item) return;
+
+  const money = value =>
+    new Intl.NumberFormat('vi-VN').format(value) + 'đ';
+  const subtotal = item.price * item.quantity;
+  const discount = Math.round(subtotal * 0.1);
+  const total = subtotal - discount;
+
+  function makeProduct() {
+    const row = document.createElement('div');
+    row.className =
+      'flex items-start gap-3 p-3 rounded-2xl bg-surface-container-low';
+
+    const image = document.createElement('img');
+    image.src = item.image;
+    image.alt = item.name;
+    image.className = 'w-16 h-16 rounded-xl object-cover shrink-0';
+
+    const info = document.createElement('div');
+    info.className = 'flex-1 min-w-0';
+
+    const name = document.createElement('p');
+    name.className = 'font-bold';
+    name.textContent = item.name;
+
+    const options = document.createElement('p');
+    options.className = 'text-sm text-outline';
+    options.textContent =
+      item.size + ' • ' + item.color + ' • SL: ' + item.quantity;
+
+    const price = document.createElement('span');
+    price.className = 'font-bold text-primary shrink-0';
+    price.textContent = money(subtotal);
+
+    info.append(name, options);
+    row.append(image, info, price);
+    return row;
+  }
+
+  function replaceProducts(container, heading) {
+    if (!container) return;
+    [...container.children].forEach(child => {
+      if (child === heading) return;
+      if (child.querySelector('img') &&
+          !child.textContent.toLowerCase().includes('canvas')) {
+        child.remove();
+      }
+    });
+    if (heading) {
+      heading.after(makeProduct());
+    } else {
+      container.prepend(makeProduct());
+    }
+  }
+
+  const packageHeading = [...document.querySelectorAll('h3')]
+    .find(el => el.textContent.includes('Kiện hàng yêu thương'));
+
+  if (packageHeading) {
+    replaceProducts(packageHeading.parentElement, packageHeading);
+    packageHeading.textContent =
+      'Kiện hàng yêu thương (' + item.quantity +
+      ' sản phẩm + 1 quà tặng)';
+  }
+
+  const activeCard = document.querySelector('.order-card.active-card');
+  if (activeCard) {
+    replaceProducts(
+      activeCard.querySelector('.flex.flex-col.gap-space-sm'),
+      null
+    );
+
+    const amount = activeCard.querySelector('.font-headline-sm');
+    if (amount) amount.textContent = money(total);
+
+    const count = [...activeCard.querySelectorAll('span')]
+      .find(el => el.textContent.trim() === '(3 món)');
+    if (count) {
+      count.textContent =
+        '(' + item.quantity + ' sản phẩm + 1 quà tặng)';
+    }
+  }
+
+  const addressHeading = [...document.querySelectorAll('span')]
+    .find(el => el.classList.contains('font-title-md') &&
+                el.textContent.includes('Địa chỉ nhận hàng'));
+
+  if (addressHeading && recipient) {
+    const fields = addressHeading.nextElementSibling;
+    if (fields && fields.children[0]) {
+      fields.children[0].textContent =
+        recipient.name + ' • ' + recipient.phone;
+    }
+    if (fields && fields.children[1]) {
+      fields.children[1].textContent = recipient.address;
+    }
+  }
+
+  const paymentHeading = [...document.querySelectorAll('span')]
+    .find(el => el.classList.contains('font-title-md') &&
+                el.textContent.includes('Thông tin thanh toán'));
+
+  if (paymentHeading) {
+    const payment = paymentHeading.parentElement;
+
+    function update(prefix, value, label) {
+      const field = [...payment.querySelectorAll('span')]
+        .find(el => el.textContent.trim().startsWith(prefix));
+      if (!field) return;
+      field.parentElement.lastElementChild.textContent = value;
+      if (label) field.textContent = label;
+    }
+
+    update('Tạm tính', money(subtotal),
+      'Tạm tính (' + item.quantity + ' món):');
+    update('Giảm giá voucher', '-' + money(discount));
+    update('Phí vận chuyển:', '0đ (Miễn phí)');
+    update('Tổng thanh toán:', money(total));
+  }
+})();
+</script>/body>  
+             </html>
