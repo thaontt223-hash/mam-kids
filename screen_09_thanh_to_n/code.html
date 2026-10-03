@@ -703,6 +703,73 @@ document.querySelectorAll('a').forEach(function (link) {
     }
   });
 })();
+</script><script>
+(function () {
+  if (new URLSearchParams(location.search).get('mode') !== 'buy-now') return;
+
+  let item;
+  try {
+    item = JSON.parse(localStorage.getItem('mamKidsBuyNow'));
+  } catch (error) {
+    return;
+  }
+  if (!item) return;
+
+  const heading = [...document.querySelectorAll('h3')]
+    .find(el => el.textContent.includes('Đơn hàng của bạn'));
+
+  const summary = heading && heading.closest('.shadow-md');
+  if (!summary) return;
+
+  const titles = [...summary.querySelectorAll('h4')]
+    .filter(el => !el.textContent.toLowerCase().includes('canvas'));
+
+  if (!titles.length) return;
+
+  function findProductRow(title) {
+    let element = title.parentElement;
+    while (element && element !== summary) {
+      if (element.querySelector('img')) return element;
+      element = element.parentElement;
+    }
+    return null;
+  }
+
+  const title = titles[0];
+  const row = findProductRow(title);
+  if (!row) return;
+
+  title.textContent = item.name;
+
+  const image = row.querySelector('img');
+  if (image) {
+    image.src = item.image;
+    image.alt = item.name;
+  }
+
+  const options = row.querySelector('p');
+  if (options) {
+    options.textContent = item.size + ' • ' + item.color;
+  }
+
+  const quantity = row.querySelector('.absolute');
+  if (quantity) quantity.textContent = 'x' + item.quantity;
+
+  const price = title.nextElementSibling;
+  if (price) {
+    price.textContent = new Intl.NumberFormat('vi-VN')
+      .format(item.price * item.quantity) + 'đ';
+  }
+
+  row.querySelectorAll('.inline-flex').forEach(el => {
+    el.style.display = 'none';
+  });
+
+  titles.slice(1).forEach(otherTitle => {
+    const otherRow = findProductRow(otherTitle);
+    if (otherRow && otherRow !== row) otherRow.remove();
+  });
+})();
 </script>/body>
     </html>
 
