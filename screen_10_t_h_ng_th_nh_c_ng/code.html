@@ -484,4 +484,54 @@ document.querySelectorAll('a, button').forEach(function (element) {
   const total = panel.querySelector('span.font-headline-md');
   if (total) total.textContent = money(subtotal - discount);
 })();
+</script><script>
+(function () {
+  let recipient;
+  try {
+    recipient = JSON.parse(localStorage.getItem('mamKidsRecipient'));
+  } catch (error) {
+    return;
+  }
+  if (!recipient) return;
+
+  const heading = [...document.querySelectorAll('h4')]
+    .find(el => el.textContent.includes('Thông tin nhận hàng'));
+  if (!heading) return;
+
+  let panel = heading.parentElement;
+  while (panel && !panel.querySelector('.space-y-4')) {
+    panel = panel.parentElement;
+  }
+  if (!panel) return;
+
+  function paragraphsFor(iconName) {
+    const icon = [...panel.querySelectorAll('.material-symbols-outlined')]
+      .find(el => el.textContent.trim() === iconName);
+    return icon
+      ? icon.parentElement.querySelectorAll('p')
+      : [];
+  }
+
+  const person = paragraphsFor('person');
+  if (person[0]) person[0].textContent = recipient.name;
+  if (person[1]) person[1].textContent = recipient.phone;
+
+  const email = paragraphsFor('mail');
+  if (email[0]) {
+    email[0].textContent = recipient.email || 'Không cung cấp email';
+  }
+  if (email[1]) {
+    email[1].textContent = 'Đơn hàng mô phỏng — chưa gửi email xác nhận';
+  }
+
+  const address = paragraphsFor('location_on');
+  if (address[0]) address[0].textContent = recipient.address;
+
+  const note = [...document.querySelectorAll('p')]
+    .find(el => el.textContent.includes('Ghi chú đơn vị vận chuyển:'));
+  if (note) {
+    note.textContent = 'Ghi chú giao hàng: ' +
+      (recipient.note || 'Không có ghi chú');
+  }
+})();
 </script>/body></html>
