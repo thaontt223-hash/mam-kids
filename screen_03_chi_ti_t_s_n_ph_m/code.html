@@ -699,5 +699,111 @@ document.querySelectorAll('a').forEach(function (link) {
   }
 })();
 </script>
-</body>
+<<script>
+(function () {
+  if (new URLSearchParams(location.search).get('mode') !== 'buy-now') {
+    return;
+  }
+
+  let item;
+  try {
+    item = JSON.parse(localStorage.getItem('mamKidsBuyNow'));
+  } catch {
+    return;
+  }
+  if (!item) return;
+
+  const money = value =>
+    new Intl.NumberFormat('vi-VN').format(value) + 'đ';
+
+  const heading = [...document.querySelectorAll('h3')]
+    .find(element => element.textContent.includes('Đơn hàng của bạn'));
+  if (!heading) return;
+
+  const summary = heading.closest('.shadow-md');
+  if (!summary) return;
+
+  heading.textContent = 'Đơn hàng của bạn';
+
+  const productTitles = [...summary.querySelectorAll('h4')];
+  const first = productTitles.find(element =>
+    element.textContent.includes('Gấu Nhỏ')
+  );
+  if (!first) return;
+
+  const row = first.closest('.items-start');
+  if (!row) return;
+
+  first.textContent = item.name;
+
+  const image = row.querySelector('img');
+  if (image) {
+    image.src = item.image;
+    image.alt = item.name;
+  }
+
+  const price = first.nextElementSibling;
+  if (price) price.textContent = money(item.price * item.quantity);
+
+  const options = row.querySelector('p');
+  if (options) {
+    options.textContent = item.size + ' • ' + item.color;
+  }
+
+  const quantity = row.querySelector('.absolute');
+  if (quantity) quantity.textContent = 'x' + item.quantity;
+
+  row.querySelectorAll('.inline-flex').forEach(element => {
+    element.style.display = 'none';
+  });
+
+  productTitles.forEach(title => {
+    if (title === first || title.textContent.toLowerCase().includes('canvas')) {
+      return;
+    }
+
+    const oldRow = title.closest('.items-start');
+    if (oldRow) oldRow.style.display = 'none';
+  });
+
+  const subtotal = item.price * item.quantity;
+  const discount = Math.round(subtotal * 0.1);
+  const total = subtotal - discount;
+
+  function updateAmount(label, value) {
+    const element = [...summary.querySelectorAll('span')]
+      .find(span => span.textContent.trim() === label);
+
+    if (element && element.parentElement.lastElementChild !== element) {
+      element.parentElement.lastElementChild.textContent = value;
+    }
+  }
+
+  updateAmount('Tạm tính', money(subtotal));
+
+  const coupon = [...summary.querySelectorAll('span')]
+    .find(span =>
+      span.textContent.trim().startsWith('Mã ưu đãi (MAMKIDS10)')
+    );
+  if (coupon) {
+    coupon.parentElement.lastElementChild.textContent =
+      '-' + money(discount);
+  }
+
+  const totalLabel = [...summary.querySelectorAll('span')]
+    .find(span => span.textContent.trim() === 'Tổng thanh toán');
+
+  if (totalLabel) {
+    const totalRow = totalLabel.parentElement.parentElement;
+    const amount = totalRow.querySelector('.text-primary');
+    if (amount) amount.textContent = money(total);
+  }
+
+  summary.querySelectorAll('button span').forEach(span => {
+    if (span.textContent.includes('Đặt hàng ngay')) {
+      span.textContent = 'Đặt hàng ngay (' + money(total) + ')';
+    }
+  });
+})();
+</script>/body>
 </html>
