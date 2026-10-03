@@ -411,4 +411,176 @@ document.querySelectorAll('a, button').forEach(function (element) {
   }
 });
 </script>
-  /body></html>
+  <script>
+(function () {
+  let cart = [];
+  try {
+    cart = JSON.parse(localStorage.getItem('mamKidsCart')) || [];
+  } catch (error) {}
+  if (!Array.isArray(cart)) cart = [];
+
+  const title = [...document.querySelectorAll('h3')]
+    .find(el => el.textContent.includes('Áo thun cotton Gấu Nhỏ'));
+  if (!title) return;
+
+  let sample = title.parentElement;
+  while (sample && !sample.classList.contains('shadow-sm')) {
+    sample = sample.parentElement;
+  }
+  if (!sample) return;
+
+  const list = sample.parentElement;
+  const gift = [...list.children].find(el =>
+    el.textContent.toLowerCase().includes('canvas') &&
+    el.querySelector('img')
+  );
+
+  const summaryTitle = [...document.querySelectorAll('h2')]
+    .find(el => el.textContent.includes('Tóm tắt đơn hàng'));
+  const summary = summaryTitle && summaryTitle.closest('.shadow-md');
+  if (!summary) return;
+
+  const money = value =>
+    new Intl.NumberFormat('vi-VN').format(value) + 'đ';
+
+  function element(tag, className, text) {
+    const node = document.createElement(tag);
+    node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  function save() {
+    localStorage.setItem('mamKidsCart', JSON.stringify(cart));
+    render();
+  }
+
+  function updateAmount(prefix, value, newLabel) {
+    const label = [...summary.querySelectorAll('span')]
+      .find(el => el.textContent.trim().startsWith(prefix));
+    if (!label) return;
+    let row = label.parentElement;
+    while (row && !row.classList.contains('justify-between')) {
+      row = row.parentElement;
+    }
+    if (row) row.lastElementChild.textContent = value;
+    if (newLabel) label.textContent = newLabel;
+  }
+
+  function confirmDelete(index) {
+    const dialog = element('dialog', 'rounded-2xl p-6 shadow-xl');
+    dialog.style.maxWidth = '340px';
+    dialog.append(element('p', 'font-bold mb-4',
+      'Bạn muốn xóa sản phẩm này khỏi giỏ hàng?'));
+
+    const actions = element('div', 'flex justify-end gap-3');
+    const cancel = element('button', 'px-4 py-2 rounded-xl', 'Giữ lại');
+    const remove = element('button',
+      'px-4 py-2 rounded-xl bg-primary text-on-primary', 'Xóa');
+
+    cancel.onclick = () => {
+      dialog.close();
+      dialog.remove();
+    };
+    remove.onclick = () => {
+      cart.splice(index, 1);
+      save();
+      dialog.close();
+      dialog.remove();
+    };
+
+    actions.append(cancel, remove);
+    dialog.append(actions);
+    document.body.append(dialog);
+    dialog.showModal();
+  }
+
+  function render() {
+    list.replaceChildren();
+
+    if (!cart.length) {
+      list.append(element('p',
+        'p-6 bg-surface-container-lowest rounded-2xl',
+        'Giỏ hàng đang trống. Ba mẹ hãy chọn thêm đồ xinh cho bé nhé!'));
+    }
+
+    cart.forEach((item, index) => {
+      const row = element('div',
+        'flex gap-3 p-4 bg-surface-container-lowest rounded-2xl shadow-sm');
+
+      const image = element('img',
+        'w-20 h-24 sm:w-28 sm:h-32 object-cover rounded-xl shrink-0');
+      image.src = item.image;
+      image.alt = item.name;
+
+      const info = element('div', 'flex-1 min-w-0');
+      info.append(element('h3', 'font-bold text-lg', item.name));
+      info.append(element('p', 'text-sm text-outline',
+        item.size + ' • ' + item.color));
+      info.append(element('p', 'font-bold text-primary mt-2',
+        money(item.price * item.quantity)));
+
+      const controls = element('div', 'flex items-center gap-3 mt-3');
+      const minus = element('button',
+        'w-9 h-9 rounded-xl bg-surface-container', '−');
+      const count = element('span', 'font-bold', item.quantity);
+      const plus = element('button',
+        'w-9 h-9 rounded-xl bg-surface-container', '+');
+      const remove = element('button', 'text-sm text-error ml-auto', 'Xóa');
+
+      minus.type = plus.type = remove.type = 'button';
+      minus.disabled = item.quantity <= 1;
+      minus.onclick = () => {
+        if (item.quantity > 1) {
+          item.quantity--;
+          save();
+        }
+      };
+      plus.onclick = () => {
+        item.quantity++;
+        save();
+      };
+      remove.onclick = () => confirmDelete(index);
+
+      controls.append(minus, count, plus, remove);
+      info.append(controls);
+      row.append(image, info);
+      list.append(row);
+    });
+
+    if (cart.length && gift) list.append(gift);
+
+    const quantity = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const subtotal = cart.reduce(
+      (sum, item) => sum + item.price * item.quantity, 0);
+    const discount = Math.round(subtotal * 0.1);
+
+    updateAmount('Tạm tính', money(subtotal),
+      'Tạm tính (' + quantity + ' sản phẩm):');
+    updateAmount('Ưu đãi voucher', '-' + money(discount));
+
+    const total = summary.querySelector('.font-display');
+    if (total) total.textContent = money(subtotal - discount);
+
+    const summaryCount = summaryTitle.nextElementSibling;
+    if (summaryCount) {
+      summaryCount.textContent = quantity + ' sản phẩm';
+    }
+
+    document.querySelectorAll('span').forEach(el => {
+      if (el.children.length === 0 &&
+          /^\d+ món$/.test(el.textContent.trim())) {
+        el.textContent = quantity + ' món';
+      }
+    });
+
+    const savings = [...summary.querySelectorAll('p')]
+      .find(el => el.textContent.includes('Ba mẹ vừa tiết kiệm'));
+    if (savings) {
+      savings.textContent = 'Ưu đãi MAMKIDS10: giảm ' + money(discount);
+    }
+  }
+
+  render();
+})();
+</script>/body></html>
