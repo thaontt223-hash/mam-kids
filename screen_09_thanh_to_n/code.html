@@ -901,6 +901,46 @@ window.addEventListener('click', function (event) {
     }
   });
 })();
+</script><script>
+window.addEventListener('click', function (event) {
+  const button = event.target.closest('button');
+  if (!button || !button.textContent.includes('Đặt hàng ngay')) return;
+
+  function readJSON(key) {
+    try {
+      return JSON.parse(localStorage.getItem(key));
+    } catch (error) {
+      return null;
+    }
+  }
+
+  const mode = new URLSearchParams(location.search).get('mode');
+  const buyNow = readJSON('mamKidsBuyNow');
+  const items = mode === 'cart'
+    ? readJSON('mamKidsCheckoutCart')
+    : (buyNow ? [buyNow] : []);
+
+  if (!Array.isArray(items) || !items.length) return;
+
+  const subtotal = items.reduce(
+    (sum, item) => sum + item.price * item.quantity, 0);
+  const discount = Math.round(subtotal * 0.1);
+
+  const order = {
+    id: 'MK' + Date.now(),
+    createdAt: new Date().toISOString(),
+    items: items,
+    subtotal: subtotal,
+    discount: discount,
+    shipping: 0,
+    total: subtotal - discount,
+    giftQuantity: 1,
+    recipient: readJSON('mamKidsRecipient'),
+    status: 'Đã đặt hàng'
+  };
+
+  localStorage.setItem('mamKidsLatestOrder', JSON.stringify(order));
+}, true);
 </script>/body>
     </html>
 
