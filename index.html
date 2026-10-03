@@ -804,4 +804,46 @@ document.querySelectorAll('a').forEach(function (link) {
   }
 });
 </script>
-</body></html>
+<<script>
+const pages = {
+  'Trang chủ': '/',
+  'Sản phẩm': '/screen_02_danh_s_ch_s_n_ph_m/code.html',
+  'Bé trai': '/screen_02_danh_s_ch_s_n_ph_m/code.html',
+  'Bé gái': '/screen_02_danh_s_ch_s_n_ph_m/code.html',
+  'Phối đồ & Combo': '/screen_06_ph_i_combo/code.html',
+  'Tư vấn size': '/screen_05_h_ng_d_n_t_v_n_size/code.html',
+  'Giới thiệu': '/screen_14_gi_i_thi_u_m_m_kids/code.html',
+  'Hướng dẫn & Hỗ trợ': '/screen_15_trung_t_m_h_tr/code.html'
+};
+
+document.querySelectorAll('header a, header button').forEach(function (element) {
+  const text = element.textContent.trim().replace(/\s+/g, ' ');
+  let destination = pages[text];
+
+  const icon = element.querySelector('.material-symbols-outlined');
+  const iconName = icon ? icon.textContent.trim() : '';
+
+  if (iconName === 'favorite') {
+    destination = '/screen_07_s_n_ph_m_y_u_th_ch/code.html';
+  }
+
+  if (iconName === 'local_mall') {
+    destination = '/screen_08_gi_h_ng/code.html';
+  }
+
+  if (iconName === 'person') {
+    destination = '/screen_11_ng_nh_p_ng_k/code.html';
+  }
+
+  if (destination) {
+    if (element.tagName === 'A') {
+      element.href = destination;
+    } else {
+      element.addEventListener('click', function () {
+        window.location.href = destination;
+      });
+    }
+  }
+});
+</script>
+            /body></html>
