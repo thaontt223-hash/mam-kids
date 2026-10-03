@@ -570,5 +570,88 @@ document.querySelectorAll('a, button').forEach(function (element) {
     }
   }
 });
-</script>
-  /body></html>
+</script><script>
+(function () {
+  const grid = document.getElementById('wishlist-grid');
+  if (!grid) return;
+
+  let list = [];
+  try {
+    list = JSON.parse(localStorage.getItem('mamKidsWishlist')) || [];
+  } catch (error) {}
+  if (!Array.isArray(list)) list = [];
+
+  function node(tag, classes, text) {
+    const el = document.createElement(tag);
+    el.className = classes;
+    if (text !== undefined) el.textContent = text;
+    return el;
+  }
+
+  [
+    'btn-select-all', 'selected-count', 'btn-add-all-cart',
+    'btn-clear-all', 'toggle-empty-demo', 'filter-tabs'
+  ].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  const demo = document.getElementById('empty-state-view');
+  if (demo) demo.style.display = 'none';
+
+  function render() {
+    grid.replaceChildren();
+    grid.style.display = 'grid';
+    grid.style.gridTemplateColumns =
+      'repeat(auto-fit, minmax(150px, 1fr))';
+
+    const counter = document.getElementById('wishlist-counter');
+    if (counter) counter.textContent = list.length;
+
+    if (!list.length) {
+      grid.append(node('p', 'p-6 rounded-2xl bg-surface-container-lowest',
+        'Chưa có sản phẩm yêu thích. Ba mẹ hãy bấm tim ở món bé thích nhé!'));
+      return;
+    }
+
+    list.forEach((item, index) => {
+      const card = node('div',
+        'p-3 rounded-2xl bg-surface-container-lowest shadow-sm');
+
+      const link = node('a', 'block');
+      link.href =
+        '/screen_03_chi_ti_t_s_n_ph_m/code.html?product=' + item.id;
+
+      const image = node('img', 'w-full object-cover rounded-xl');
+      image.style.aspectRatio = '4 / 5';
+      image.src = item.image;
+      image.alt = item.name;
+
+      link.append(image, node('h3', 'font-bold mt-3', item.name));
+      card.append(link);
+
+      card.append(node('p', 'font-bold text-primary mt-2',
+        new Intl.NumberFormat('vi-VN').format(item.price) + 'đ'));
+
+      const details = node('a',
+        'block text-center py-2 rounded-xl bg-primary text-on-primary mt-3',
+        'Chọn size & mua');
+      details.href = link.href;
+
+      const remove = node('button',
+        'w-full py-2 text-sm text-error mt-2', 'Xóa khỏi yêu thích');
+      remove.type = 'button';
+      remove.onclick = function () {
+        list.splice(index, 1);
+        localStorage.setItem('mamKidsWishlist', JSON.stringify(list));
+        render();
+      };
+
+      card.append(details, remove);
+      grid.append(card);
+    });
+  }
+
+  render();
+})();
+</script>/body></html>
