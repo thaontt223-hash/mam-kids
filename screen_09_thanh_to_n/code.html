@@ -523,7 +523,7 @@ document.querySelectorAll('a').forEach(function (link) {
   );
   if (!first) return;
 
-  const row = first.closest('.items-start');
+ const row = first.parentElement.parentElement.parentElement;
   if (!row) return;
 
   first.textContent = item.name;
@@ -554,7 +554,7 @@ document.querySelectorAll('a').forEach(function (link) {
       return;
     }
 
-    const oldRow = title.closest('.items-start');
+ const oldRow = title.parentElement.parentElement.parentElement;
     if (oldRow) oldRow.style.display = 'none';
   });
 
