@@ -805,5 +805,34 @@ document.querySelectorAll('a').forEach(function (link) {
     }
   });
 })();
+</script><script>
+document.addEventListener('click', function (event) {
+  const button = event.target.closest('button');
+  if (!button || button.textContent.trim() !== 'Mua ngay') return;
+
+  event.preventDefault();
+  event.stopImmediatePropagation();
+
+  const title = document.querySelector('main h1');
+  const image = document.querySelector('#main-product-img');
+  const price = document.querySelector('main .font-display');
+  const size = document.querySelector('#size-label');
+  const color = document.querySelector('#color-label');
+  const quantity = document.querySelector('#qty-val');
+
+  const item = {
+    name: title.textContent.trim(),
+    image: image ? image.src : '',
+    price: Number(price.textContent.replace(/\D/g, '')),
+    size: size ? size.textContent.trim() : '',
+    color: color ? color.textContent.trim() : '',
+    quantity: quantity ? Number(quantity.textContent) || 1 : 1
+  };
+
+  localStorage.setItem('mamKidsBuyNow', JSON.stringify(item));
+
+  window.location.href =
+    '/screen_09_thanh_to_n/code.html?mode=buy-now';
+}, true);
 </script>/body>
 </html>
