@@ -534,4 +534,138 @@ document.querySelectorAll('a, button').forEach(function (element) {
       (recipient.note || 'Không có ghi chú');
   }
 })();
+</script><script>
+(function () {
+  let order;
+  try {
+    order = JSON.parse(localStorage.getItem('mamKidsLatestOrder'));
+  } catch (error) {
+    return;
+  }
+  if (!order || !Array.isArray(order.items) || !order.items.length) return;
+
+  const money = value =>
+    new Intl.NumberFormat('vi-VN').format(value) + 'đ';
+  const quantity = order.items.reduce(
+    (sum, item) => sum + item.quantity, 0);
+
+  function node(tag, classes, text) {
+    const element = document.createElement(tag);
+    element.className = classes;
+    if (text !== undefined) element.textContent = text;
+    return element;
+  }
+
+  function product(item) {
+    const row = node('div',
+      'flex items-start gap-3 p-4 rounded-2xl bg-surface-container-lowest mb-3');
+
+    const image = node('img',
+      'w-16 h-20 object-cover rounded-xl shrink-0');
+    image.src = item.image;
+    image.alt = item.name;
+
+    const info = node('div', 'flex-1 min-w-0');
+    info.append(node('p', 'font-bold', item.name));
+    info.append(node('p', 'text-sm text-outline',
+      item.size + ' • ' + item.color + ' • SL: ' + item.quantity));
+
+    row.append(image, info, node('span',
+      'font-bold text-primary shrink-0',
+      money(item.price * item.quantity)));
+    return row;
+  }
+
+  function replaceItems(container, anchor) {
+    if (!container) return;
+    [...container.children].forEach(child => {
+      if (child.querySelector('img') &&
+          !child.textContent.toLowerCase().includes('canvas')) {
+        child.remove();
+      }
+    });
+
+    const items = node('div', '');
+    order.items.forEach(item => items.append(product(item)));
+    if (anchor) anchor.after(items);
+    else container.prepend(items);
+  }
+
+  function update(scope, prefix, value, newLabel) {
+    const label = [...scope.querySelectorAll('span')]
+      .find(el => el.textContent.trim().startsWith(prefix));
+    if (!label) return;
+
+    let row = label.parentElement;
+    while (row && !row.classList.contains('justify-between')) {
+      row = row.parentElement;
+    }
+    if (row) row.lastElementChild.textContent = value;
+    if (newLabel) label.textContent = newLabel;
+  }
+
+  const successHeading = [...document.querySelectorAll('h4')]
+    .find(el => el.textContent.includes('Kiện hàng của bé'));
+
+  if (successHeading) {
+    const header = successHeading.parentElement;
+    replaceItems(header.parentElement, header);
+
+    successHeading.lastChild.textContent =
+      ' Kiện hàng của bé (' + quantity + ' sản phẩm + 1 quà tặng)';
+
+    const panel = successHeading.closest('.lg\\:col-span-7');
+    if (panel) {
+      update(panel, 'Tạm tính', money(order.subtotal),
+        'Tạm tính (' + quantity + ' món)');
+      update(panel, 'Mã giảm giá', '-' + money(order.discount));
+
+      const total = panel.querySelector('span.font-headline-md');
+      if (total) total.textContent = money(order.total);
+    }
+  }
+
+  const detailHeading = [...document.querySelectorAll('h3')]
+    .find(el => el.textContent.includes('Kiện hàng yêu thương'));
+
+  if (detailHeading) {
+    replaceItems(detailHeading.parentElement, detailHeading);
+    detailHeading.textContent =
+      'Kiện hàng yêu thương (' + quantity + ' sản phẩm + 1 quà tặng)';
+  }
+
+  const active = document.querySelector('.order-card.active-card');
+  if (active) {
+    replaceItems(active.querySelector('.flex.flex-col.gap-space-sm'));
+
+    const total = active.querySelector('.font-headline-sm');
+    if (total) total.textContent = money(order.total);
+
+    const count = [...active.querySelectorAll('span')]
+      .find(el => /^\(\d+/.test(el.textContent.trim()));
+    if (count) {
+      count.textContent = '(' + quantity + ' sản phẩm + 1 quà tặng)';
+    }
+  }
+
+  const paymentHeading = [...document.querySelectorAll('span')]
+    .find(el => el.classList.contains('font-title-md') &&
+                el.textContent.includes('Thông tin thanh toán'));
+
+  if (paymentHeading) {
+    const payment = paymentHeading.parentElement;
+    update(payment, 'Tạm tính', money(order.subtotal),
+      'Tạm tính (' + quantity + ' món):');
+    update(payment, 'Giảm giá voucher', '-' + money(order.discount));
+    update(payment, 'Tổng thanh toán:', money(order.total));
+  }
+
+  document.querySelectorAll('span, strong, p').forEach(el => {
+    if (!el.children.length &&
+        el.textContent.includes('#MK20260001')) {
+      el.textContent = el.textContent.replace(
+        '#MK20260001', '#' + order.id);
+    }
+  });
+})();
 </script>/body></html>
