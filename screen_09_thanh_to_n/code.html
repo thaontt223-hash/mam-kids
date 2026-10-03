@@ -770,6 +770,32 @@ document.querySelectorAll('a').forEach(function (link) {
     if (otherRow && otherRow !== row) otherRow.remove();
   });
 })();
+</script><script>
+window.addEventListener('click', function (event) {
+  const button = event.target.closest('button');
+  if (!button || !button.textContent.includes('Đặt hàng ngay')) return;
+
+  function read(selector) {
+    const field = document.querySelector(selector);
+    return field ? field.value.trim() : '';
+  }
+
+  const areas = [...document.querySelectorAll('main select')]
+    .map(field => field.selectedOptions[0]?.textContent.trim() || '');
+
+  const recipient = {
+    name: read('input[placeholder="Nhập họ và tên ba hoặc mẹ"]'),
+    phone: read('input[type="tel"]'),
+    email: read('input[placeholder="email.ba.me@gmail.com"]'),
+    address: [
+      read('input[placeholder="Số nhà, tên ngõ, toà nhà, đường..."]'),
+      ...areas.reverse()
+    ].filter(Boolean).join(', '),
+    note: read('main textarea')
+  };
+
+  localStorage.setItem('mamKidsRecipient', JSON.stringify(recipient));
+}, true);
 </script>/body>
     </html>
 
