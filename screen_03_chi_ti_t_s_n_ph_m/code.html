@@ -834,5 +834,55 @@ document.addEventListener('click', function (event) {
   window.location.href =
     '/screen_09_thanh_to_n/code.html?mode=buy-now';
 }, true);
+</script><script>
+window.addEventListener('click', function (event) {
+  const button = event.target.closest('button');
+  if (!button || !button.textContent.includes('Thêm vào giỏ')) return;
+
+  event.preventDefault();
+  event.stopImmediatePropagation();
+
+  const title = document.querySelector('main h1');
+  const image = document.querySelector('#main-product-img');
+  const price = document.querySelector('main .font-display');
+  if (!title || !price) return;
+
+  const size = document.querySelector('#size-label');
+  const color = document.querySelector('#color-label');
+  const quantity = document.querySelector('#qty-val');
+
+  const item = {
+    id: new URLSearchParams(location.search).get('product') || '1',
+    name: title.textContent.trim(),
+    image: image ? image.src : '',
+    price: Number(price.textContent.replace(/\D/g, '')),
+    size: size ? size.textContent.trim() : '',
+    color: color ? color.textContent.trim() : '',
+    quantity: quantity ? Number(quantity.textContent) || 1 : 1
+  };
+
+  let cart = [];
+  try {
+    cart = JSON.parse(localStorage.getItem('mamKidsCart')) || [];
+  } catch (error) {
+    cart = [];
+  }
+  if (!Array.isArray(cart)) cart = [];
+
+  const existing = cart.find(product =>
+    product.id === item.id &&
+    product.size === item.size &&
+    product.color === item.color
+  );
+
+  if (existing) {
+    existing.quantity += item.quantity;
+  } else {
+    cart.push(item);
+  }
+
+  localStorage.setItem('mamKidsCart', JSON.stringify(cart));
+  location.href = '/screen_08_gi_h_ng/code.html';
+}, true);
 </script>/body>
 </html>
