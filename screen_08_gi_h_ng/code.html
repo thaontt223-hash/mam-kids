@@ -583,4 +583,22 @@ document.querySelectorAll('a, button').forEach(function (element) {
 
   render();
 })();
+</script><script>
+window.addEventListener('click', function (event) {
+  const link = event.target.closest('a, button');
+  if (!link || !link.textContent.includes('Tiến hành thanh toán')) return;
+
+  event.preventDefault();
+  event.stopImmediatePropagation();
+
+  let cart = [];
+  try {
+    cart = JSON.parse(localStorage.getItem('mamKidsCart')) || [];
+  } catch (error) {}
+
+  if (!Array.isArray(cart) || !cart.length) return;
+
+  localStorage.setItem('mamKidsCheckoutCart', JSON.stringify(cart));
+  location.href = '/screen_09_thanh_to_n/code.html?mode=cart';
+}, true);
 </script>/body></html>
