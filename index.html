@@ -846,5 +846,21 @@ document.querySelectorAll('header a, header button').forEach(function (element) 
   }
 });
 </script>
-            </body>
+            <<script>
+document.querySelectorAll('a, button').forEach(function (element) {
+  if (element.textContent.includes('Đặt áo thêu tên cho bé')) {
+    const path = '/screen_04_c_nh_n_h_a_s_n_ph_m/code.html';
+
+    if (element.tagName === 'A') {
+      element.href = path;
+    }
+
+    element.addEventListener('click', function (event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      window.location.href = path;
+    }, true);
+  }
+});
+</script>/body>
 </html>
