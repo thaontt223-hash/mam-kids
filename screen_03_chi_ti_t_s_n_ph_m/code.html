@@ -560,11 +560,144 @@ document.querySelectorAll('a').forEach(function (link) {
   }
 });
 </script>
-<<script>
+<script>
 document.querySelectorAll('a').forEach(function (link) {
   if (link.textContent.includes('Cá nhân hóa cho bé')) {
     link.href = '/screen_04_c_nh_n_h_a_s_n_ph_m/code.html';
   }
 });
 </script>
-  /body></html>
+<style>
+[hidden] {
+  display: none !important;
+}
+</style>
+
+<script>
+(function () {
+  const id = new URLSearchParams(location.search).get('product');
+  if (!id) return;
+
+  let products;
+  try {
+    products = JSON.parse(
+      localStorage.getItem('mamKidsProducts') || '[]'
+    );
+  } catch {
+    return;
+  }
+
+  const product = products.find(item => item.id === id);
+  if (!product) return;
+
+  const title = document.querySelector('main h1');
+  const image = document.querySelector('#main-product-img');
+  if (!title) return;
+
+  document.title = product.name + ' | Mầm Kids';
+  title.textContent = product.name;
+
+  if (image) {
+    image.src = product.image;
+    image.alt = product.name;
+  }
+
+  const intro = title.nextElementSibling;
+  if (intro) {
+    intro.textContent =
+      product.name + ' thuộc bộ sưu tập Mầm Kids. ' +
+      'Độ tuổi tham khảo: ' + product.age +
+      '. Ba mẹ hãy xem bảng tư vấn size trước khi chọn.';
+  }
+
+  const priceBox = intro ? intro.nextElementSibling : null;
+  if (priceBox) {
+    const price = priceBox.querySelector('.font-display');
+    if (price) price.textContent = product.price;
+
+    priceBox.querySelectorAll('.line-through, .text-error')
+      .forEach(element => element.hidden = true);
+  }
+
+  const breadcrumb = document.querySelector('main nav');
+  if (breadcrumb) {
+    const last = breadcrumb.lastElementChild;
+    if (last) last.textContent = product.name;
+
+    breadcrumb.querySelectorAll('a').forEach(link => {
+      if (link.textContent.trim() === 'Bé trai') {
+        link.textContent = 'Sản phẩm';
+        link.href = '/screen_02_danh_s_ch_s_n_ph_m/code.html';
+      }
+      if (link.textContent.trim() === 'Áo thun') {
+        link.hidden = true;
+      }
+    });
+  }
+
+  document.querySelectorAll('main span').forEach(element => {
+    if (element.textContent.trim().startsWith('Mã SP:')) {
+      element.textContent = 'Mã SP: MK-' + id.padStart(3, '0');
+    }
+  });
+
+  if (id !== '1') {
+    const thumbnail = document.querySelector('.thumb-btn');
+    if (thumbnail) thumbnail.parentElement.hidden = true;
+
+    if (image) {
+      const gallery = image.parentElement.parentElement;
+      gallery.querySelectorAll('span').forEach(element => {
+        element.hidden = true;
+      });
+    }
+
+    const features = priceBox ? priceBox.nextElementSibling : null;
+    if (features) features.hidden = true;
+
+    document.querySelectorAll('main p').forEach(element => {
+      if (element.textContent.includes('Chứng nhận tiêu chuẩn')) {
+        element.parentElement.hidden = true;
+      }
+    });
+
+    const heading = [...document.querySelectorAll('main h3')]
+      .find(element =>
+        element.textContent.includes('Được may đo từ tình yêu thương')
+      );
+
+    if (heading) {
+      const content = heading.parentElement;
+      const paragraph = content.querySelector('p');
+      if (paragraph && intro) {
+        paragraph.textContent = intro.textContent;
+      }
+
+      const list = content.querySelector('ul');
+      if (list) list.hidden = true;
+
+      const illustration = content.parentElement.querySelector('img');
+      if (illustration) {
+        illustration.src = product.image;
+        illustration.alt = product.name;
+      }
+    }
+
+    const combo = [...document.querySelectorAll('main h2')]
+      .find(element => element.textContent.includes('Combo Ngày Hè'));
+
+    if (combo) {
+      const section = combo.closest('section');
+      if (section) section.hidden = true;
+    }
+
+    document.querySelectorAll('main a').forEach(link => {
+      if (link.textContent.includes('Cá nhân hóa cho bé')) {
+        link.hidden = true;
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>
