@@ -732,7 +732,7 @@ document.querySelectorAll('article').forEach(function (card) {
   }
 });
 </script>
-<<style>
+<style>
 @media (max-width: 1023px) {
   aside {
     position: static !important;
@@ -745,6 +745,51 @@ document.querySelectorAll('article').forEach(function (card) {
     opacity: 1 !important;
   }
 }
-</style>/body>
+</style>
+<
+           <script>
+(function () {
+  const cards = [...document.querySelectorAll('article')]
+    .filter(card => card.querySelector('h3'));
+
+  const products = cards.map((card, index) => {
+    const image = card.querySelector('img');
+    const price = card.querySelector('.text-primary.font-bold');
+    const age = card.querySelector('.text-outline span');
+
+    return {
+      id: String(index + 1),
+      name: card.querySelector('h3').textContent.trim(),
+      image: image ? image.src : '',
+      price: price ? price.textContent.trim() : '',
+      age: age ? age.textContent.trim() : ''
+    };
+  });
+
+  localStorage.setItem(
+    'mamKidsProducts',
+    JSON.stringify(products)
+  );
+
+  cards.forEach((card, index) => {
+    card.style.cursor = 'pointer';
+
+    card.addEventListener('click', function (event) {
+      const button = event.target.closest('button');
+
+      if (button && button.textContent.includes('favorite')) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      window.location.href =
+        '/screen_03_chi_ti_t_s_n_ph_m/code.html?product=' +
+        products[index].id;
+    }, true);
+  });
+})();
+</script> /body>
 </html>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </footer>
 
