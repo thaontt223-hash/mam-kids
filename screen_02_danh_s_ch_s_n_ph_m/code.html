@@ -790,6 +790,68 @@ document.querySelectorAll('article').forEach(function (card) {
     }, true);
   });
 })();
-</script> /body>
+</script><script>
+(function () {
+  const cards = [...document.querySelectorAll('article')]
+    .filter(card => card.querySelector('h3'));
+
+  function readWishlist() {
+    try {
+      const list = JSON.parse(localStorage.getItem('mamKidsWishlist'));
+      return Array.isArray(list) ? list : [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function updateHearts() {
+    const list = readWishlist();
+    cards.forEach((card, index) => {
+      const icon = [...card.querySelectorAll('.material-symbols-outlined')]
+        .find(el => el.textContent.trim() === 'favorite');
+      if (!icon) return;
+
+      const saved = list.some(item => item.id === String(index + 1));
+      icon.style.color = saved ? '#d65d77' : '';
+      icon.style.fontVariationSettings = saved ? "'FILL' 1" : "'FILL' 0";
+      icon.closest('button').setAttribute('aria-pressed', String(saved));
+    });
+  }
+
+  window.addEventListener('click', function (event) {
+    const button = event.target.closest('button');
+    const card = button && button.closest('article');
+    if (!card || !button.textContent.includes('favorite')) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    const index = cards.indexOf(card);
+    if (index < 0) return;
+
+    const id = String(index + 1);
+    const list = readWishlist();
+    const existing = list.findIndex(item => item.id === id);
+
+    if (existing >= 0) {
+      list.splice(existing, 1);
+    } else {
+      const image = card.querySelector('img');
+      const price = card.querySelector('.text-primary.font-bold');
+      list.push({
+        id: id,
+        name: card.querySelector('h3').textContent.trim(),
+        image: image ? image.src : '',
+        price: price ? Number(price.textContent.replace(/\D/g, '')) : 0
+      });
+    }
+
+    localStorage.setItem('mamKidsWishlist', JSON.stringify(list));
+    updateHearts();
+  }, true);
+
+  updateHearts();
+})();
+</script>/body>
 </html>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </footer>
 
