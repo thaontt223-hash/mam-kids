@@ -875,6 +875,60 @@ window.addEventListener('click', function (event) {
   location.href =
     '/screen_07_s_n_ph_m_y_u_th_ch/code.html';
 }, true);
+</script><script>
+(function () {
+  const input = document.querySelector(
+    'input[placeholder="Tìm kiếm trong danh mục..."]'
+  );
+  const cards = [...document.querySelectorAll('article')]
+    .filter(card => card.querySelector('h3'));
+
+  if (!input || !cards.length) return;
+
+  function normalize(text) {
+    return text.toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .trim();
+  }
+
+  const message = document.createElement('p');
+  message.textContent = 'Không tìm thấy sản phẩm phù hợp.';
+  message.style.cssText =
+    'display:none;padding:24px;grid-column:1/-1;color:#666;';
+  cards[0].parentElement.append(message);
+
+  function search() {
+    const keyword = normalize(input.value);
+    let count = 0;
+
+    cards.forEach(card => {
+      const name = normalize(card.querySelector('h3').textContent);
+      const matches = name.includes(keyword);
+      card.style.setProperty(
+        'display', matches ? '' : 'none', 'important'
+      );
+      if (matches) count++;
+    });
+
+    message.style.display = count ? 'none' : 'block';
+
+    const counter = [...document.querySelectorAll('span')]
+      .find(el => !el.children.length &&
+        /^Tìm thấy \d+ sản phẩm phù hợp$/.test(el.textContent.trim()));
+    if (counter) {
+      counter.textContent = 'Tìm thấy ' + count + ' sản phẩm phù hợp';
+    }
+  }
+
+  input.addEventListener('input', search);
+  input.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') event.preventDefault();
+  });
+
+  search();
+})();
 </script>/body>
 </html>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </footer>
 
