@@ -393,4 +393,95 @@ document.querySelectorAll('a, button').forEach(function (element) {
     }
   }
 });
+</script><script>
+(function () {
+  let item;
+  try {
+    item = JSON.parse(localStorage.getItem('mamKidsBuyNow'));
+  } catch (error) {
+    return;
+  }
+  if (!item) return;
+
+  const money = value =>
+    new Intl.NumberFormat('vi-VN').format(value) + 'đ';
+
+  const heading = [...document.querySelectorAll('h4')]
+    .find(el => el.textContent.includes('Kiện hàng của bé'));
+  if (!heading) return;
+
+  const panel = heading.closest('.lg\\:col-span-7');
+  if (!panel) return;
+
+  const titles = [...panel.querySelectorAll('h5')];
+  if (!titles.length) return;
+
+  function findRow(title) {
+    let element = title.parentElement;
+    while (element && element !== panel) {
+      if (element.querySelector('img')) return element;
+      element = element.parentElement;
+    }
+    return null;
+  }
+
+  const title = titles[0];
+  const row = findRow(title);
+  if (!row) return;
+
+  title.textContent = item.name;
+
+  const image = row.querySelector('img');
+  if (image) {
+    image.src = item.image;
+    image.alt = item.name;
+  }
+
+  const options = title.nextElementSibling;
+  if (options) {
+    options.textContent =
+      'Phân loại: ' + item.size + ' • ' + item.color;
+  }
+
+  const quantity = row.querySelector('.absolute');
+  if (quantity) quantity.textContent = 'x' + item.quantity;
+
+  const price = row.querySelector('span.shrink-0');
+  const subtotal = item.price * item.quantity;
+  if (price) price.textContent = money(subtotal);
+
+  row.querySelectorAll('.inline-flex').forEach(el => {
+    el.style.display = 'none';
+  });
+
+  titles.slice(1).forEach(otherTitle => {
+    const otherRow = findRow(otherTitle);
+    if (otherRow && otherRow !== row) otherRow.remove();
+  });
+
+  heading.lastChild.textContent =
+    ' Kiện hàng của bé (' + item.quantity +
+    ' sản phẩm + 01 quà tặng)';
+
+  const subtotalLabel = [...panel.querySelectorAll('span')]
+    .find(el => el.textContent.trim().startsWith('Tạm tính'));
+  if (subtotalLabel) {
+    subtotalLabel.textContent =
+      'Tạm tính (' + item.quantity + ' món)';
+    subtotalLabel.parentElement.lastElementChild.textContent =
+      money(subtotal);
+  }
+
+  const discount = Math.round(subtotal * 0.1);
+  const discountLabel = [...panel.querySelectorAll('span')]
+    .find(el => el.textContent.includes('Mã giảm giá') &&
+                el.textContent.includes('MAMKIDS10'));
+  if (discountLabel) {
+    discountLabel.parentElement.lastElementChild.textContent =
+      '-' + money(discount);
+  }
+
+  const total = panel.querySelector('span.font-headline-md');
+  if (total) total.textContent = money(subtotal - discount);
+})();
 </script>/body></html>
