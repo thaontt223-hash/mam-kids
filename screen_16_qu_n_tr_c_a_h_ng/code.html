@@ -645,4 +645,28 @@
 </form>
 </div>
 </div>
-</div></main></div></body></html>
+</div></main></div><<script>
+document.querySelectorAll('a').forEach(function (link) {
+  const text = link.textContent.trim().replace(/\s+/g, ' ');
+
+  if (
+    text.includes('Trang chủ') ||
+    text.includes('Quay lại trang bán hàng')
+  ) {
+    link.href = '/';
+  } else if (text === 'Sản phẩm' || text.includes('Tiếp tục mua sắm')) {
+    if (!text.includes('checkroom')) {
+      link.href = '/screen_02_danh_s_ch_s_n_ph_m/code.html';
+    }
+  } else if (text === 'Tư vấn size' || text === 'Hướng dẫn chọn size') {
+    link.href = '/screen_05_h_ng_d_n_t_v_n_size/code.html';
+  } else if (text === 'Phối đồ & Combo') {
+    link.href = '/screen_06_ph_i_combo/code.html';
+  } else if (text === 'Giới thiệu') {
+    link.href = '/screen_14_gi_i_thi_u_m_m_kids/code.html';
+  } else if (text === 'Hướng dẫn & Hỗ trợ') {
+    link.href = '/screen_15_trung_t_m_h_tr/code.html';
+  }
+});
+</script>
+                           /body></html>
