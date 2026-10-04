@@ -643,7 +643,13 @@ document.querySelectorAll('a').forEach(function (link) {
   });
 
   const subtotal = item.price * item.quantity;
-  const discount = Math.round(subtotal * 0.1);
+  const appliedCode = localStorage.getItem('mamKidsCoupon') || '';
+
+const discount = appliedCode === 'MAMKIDS10'
+  ? Math.round(subtotal * 0.1)
+  : appliedCode === 'WELCOME50'
+    ? Math.min(50000, subtotal)
+    : 0;
   const total = subtotal - discount;
 
   function updateAmount(label, value) {
@@ -749,7 +755,13 @@ document.querySelectorAll('a').forEach(function (link) {
   });
 
   const subtotal = item.price * item.quantity;
-  const discount = Math.round(subtotal * 0.1);
+  const appliedCode = localStorage.getItem('mamKidsCoupon') || '';
+
+const discount = appliedCode === 'MAMKIDS10'
+  ? Math.round(subtotal * 0.1)
+  : appliedCode === 'WELCOME50'
+    ? Math.min(50000, subtotal)
+    : 0;
   const total = subtotal - discount;
 
   function updateAmount(label, value) {
@@ -951,7 +963,13 @@ window.addEventListener('click', function (event) {
   const quantity = cart.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = cart.reduce(
     (sum, item) => sum + item.price * item.quantity, 0);
-  const discount = Math.round(subtotal * 0.1);
+  const appliedCode = localStorage.getItem('mamKidsCoupon') || '';
+
+const discount = appliedCode === 'MAMKIDS10'
+  ? Math.round(subtotal * 0.1)
+  : appliedCode === 'WELCOME50'
+    ? Math.min(50000, subtotal)
+    : 0;
   const total = subtotal - discount;
 
   heading.textContent =
@@ -1008,7 +1026,13 @@ window.addEventListener('click', function (event) {
 
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity, 0);
-  const discount = Math.round(subtotal * 0.1);
+  const appliedCode = localStorage.getItem('mamKidsCoupon') || '';
+
+const discount = appliedCode === 'MAMKIDS10'
+  ? Math.round(subtotal * 0.1)
+  : appliedCode === 'WELCOME50'
+    ? Math.min(50000, subtotal)
+    : 0;
 
   const order = {
     id: 'MK' + Date.now(),
@@ -1025,6 +1049,19 @@ window.addEventListener('click', function (event) {
 
   localStorage.setItem('mamKidsLatestOrder', JSON.stringify(order));
 }, true);
+</script><script>
+(function () {
+  const code = localStorage.getItem('mamKidsCoupon') || '';
+
+  document.querySelectorAll('span').forEach(el => {
+    if (!el.children.length &&
+        el.textContent.trim().startsWith('Mã ưu đãi (MAMKIDS10)')) {
+      el.textContent = code
+        ? 'Mã ưu đãi (' + code + ')'
+        : 'Giảm giá';
+    }
+  });
+})();
 </script>/body>
     </html>
 
