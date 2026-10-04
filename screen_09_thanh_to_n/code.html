@@ -1,8 +1,90 @@
 <!DOCTYPE html>
-
-<html lang="vi"><head><head>
+<html lang="vi">
+<head>
 <script>
-window.addEventListener('click', function (event) {<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>Mầm Kids - Growing with Love</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+window.addEventListener('click', function (event) {
+  const button = event.target.closest('button, a');
+
+  if (!button ||
+      !/Đặt hàng ngay|Hoàn tất đặt hàng/.test(button.textContent)) {
+    return;
+  }
+
+  const name = document.querySelector(
+    'input[placeholder="Nhập họ và tên ba hoặc mẹ"]'
+  );
+  const phone = document.querySelector('main input[type="tel"]');
+  const address = document.querySelector(
+    'input[placeholder="Số nhà, tên ngõ, toà nhà, đường..."]'
+  );
+  const email = document.querySelector(
+    'input[placeholder="email.ba.me@gmail.com"]'
+  );
+
+  document.querySelectorAll('.mam-field-error')
+    .forEach(el => el.remove());
+
+  [name, phone, address, email].forEach(field => {
+    if (field) {
+      field.removeAttribute('aria-invalid');
+      field.style.removeProperty('outline');
+    }
+  });
+
+  const errors = [];
+
+  if (!name?.value.trim()) {
+    errors.push([name, 'Ba mẹ vui lòng nhập họ tên.']);
+  }
+
+  const phoneNumber = (phone?.value || '').replace(/\s/g, '');
+
+  if (!/^0\d{9}$/.test(phoneNumber)) {
+    errors.push([
+      phone,
+      'Vui lòng nhập số điện thoại gồm 10 chữ số, bắt đầu bằng 0.'
+    ]);
+  }
+
+  if (!address?.value.trim()) {
+    errors.push([address, 'Vui lòng nhập địa chỉ giao hàng.']);
+  }
+
+  if (email?.value.trim() &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) {
+    errors.push([email, 'Địa chỉ email chưa hợp lệ.']);
+  }
+
+  if (!errors.length) return;
+
+  event.preventDefault();
+  event.stopImmediatePropagation();
+
+  errors.forEach(([field, text]) => {
+    if (!field) return;
+
+    field.setAttribute('aria-invalid', 'true');
+    field.style.outline = '2px solid #b42318';
+
+    const message = document.createElement('p');
+    message.className = 'mam-field-error';
+    message.setAttribute('role', 'alert');
+    message.textContent = text;
+    message.style.cssText =
+      'color:#b42318;font-size:14px;margin:6px 0 0;';
+
+    field.insertAdjacentElement('afterend', message);
+  });
+
+  const firstField = errors.find(([field]) => field)?.[0];
+
+  firstField?.focus();
+  firstField?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center'
+  });
+}, true);
+</script><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>Mầm Kids - Growing with Love</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"on-background":"#221a14","secondary-container":"#feae2c","tertiary":"#00633a","surface-container-lowest":"#ffffff","surface-container-high":"#f6e5db","surface-container-highest":"#f0dfd6","secondary":"#835500","tertiary-fixed":"#91f8b8","error":"#ba1a1a","on-tertiary":"#ffffff","tertiary-container":"#007f4b","background":"#fff8f5","on-tertiary-fixed":"#002110","on-primary-fixed":"#00210b","on-secondary-fixed":"#291800","primary-fixed-dim":"#88d899","inverse-primary":"#88d899","on-primary-container":"#cdffd2","surface-tint":"#1a6c38","outline-variant":"#bfc9bd","inverse-on-surface":"#ffede4","on-surface-variant":"#404940","outline":"#707a6f","primary-container":"#2e7d47","on-error":"#ffffff","on-secondary-fixed-variant":"#633f00","on-error-container":"#93000a","surface-dim":"#e7d7cd","on-primary-fixed-variant":"#005226","on-tertiary-fixed-variant":"#00522f","surface-bright":"#fff8f5","error-container":"#ffdad6","inverse-surface":"#382e28","on-primary":"#ffffff","secondary-fixed-dim":"#ffb955","secondary-fixed":"#ffddb4","primary-fixed":"#a3f5b3","surface":"#fff8f5","on-tertiary-container":"#caffd9","surface-container-low":"#fff1e9","on-secondary":"#ffffff","on-secondary-container":"#6b4500","primary":"#0b6431","surface-variant":"#f0dfd6","surface-container":"#fcebe1","tertiary-fixed-dim":"#74db9d","on-surface":"#221a14"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-xl":"2.5rem","space-lg":"1.5rem","margin-mobile":"1rem","space-xs":"0.25rem","gutter":"1.25rem","margin":"2rem","gutter-mobile":"0.75rem","space-sm":"0.5rem","space-md":"1rem"},"fontFamily":{"body-lg":["Be Vietnam Pro"],"label-lg":["Be Vietnam Pro"],"display":["Be Vietnam Pro"],"body-sm":["Be Vietnam Pro"],"headline-lg-mobile":["Be Vietnam Pro"],"headline-md":["Be Vietnam Pro"],"label-sm":["Be Vietnam Pro"],"headline-sm":["Be Vietnam Pro"],"headline-lg":["Be Vietnam Pro"],"body-md":["Be Vietnam Pro"],"label-md":["Be Vietnam Pro"],"display-mobile":["Be Vietnam Pro"],"title-md":["Be Vietnam Pro"]},"fontSize":{"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"label-lg":["15px",{"lineHeight":"20px","fontWeight":"600"}],"display":["48px",{"lineHeight":"56px","letterSpacing":"-0.02em","fontWeight":"700"}],"body-sm":["12px",{"lineHeight":"18px","fontWeight":"400"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"700"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"-0.005em","fontWeight":"600"}],"label-sm":["11px",{"lineHeight":"16px","letterSpacing":"0.04em","fontWeight":"700"}],"headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}],"headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.01em","fontWeight":"700"}],"body-md":["14px",{"lineHeight":"22px","fontWeight":"400"}],"label-md":["13px",{"lineHeight":"18px","fontWeight":"600"}],"display-mobile":["32px",{"lineHeight":"40px","letterSpacing":"-0.015em","fontWeight":"700"}],"title-md":["18px",{"lineHeight":"26px","fontWeight":"600"}]}}}};</script></head><body class="bg-background font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest/95 backdrop-blur-md shadow-[0_1px_8px_rgba(45,36,30,0.04)]"><div class="bg-primary text-on-primary py-2 px-margin"><div class="max-w-[1440px] mx-auto flex flex-col md:flex-row items-center justify-between gap-2"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px]">redeem</span><span class="font-label-sm text-label-sm tracking-wide">Tặng túi vải canvas Mầm Kids độc quyền cho mọi đơn hàng • Miễn phí vận chuyển từ 399k</span></div><div class="flex items-center gap-4 text-on-primary/90"><a class="flex items-center gap-1 hover:text-on-primary transition-colors font-label-sm text-label-sm" href="tel:19008888"><span class="material-symbols-outlined text-[14px]">support_agent</span><span class="">Hotline: 1900 8888</span></a><span class="text-on-primary/40 text-xs">|</span><span class="font-label-sm text-label-sm">T2 - CN: 8h30 - 21h30</span></div></div></div><div class="max-w-[1440px] mx-auto px-margin"><div class="h-20 flex items-center justify-between gap-space-lg"><div class="flex items-center gap-space-md shrink-0"><a class="flex items-center gap-space-sm" data-path="trang-chu" href="#"><img alt="Mầm Kids Sprout Logo" class="h-10 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XWz3iSCbI1i2HeD9BBiBdK6ZTe3kv0WO3K6LkxT2wtAn51gNbezbfTJUGSUzyApbQnlVqVa4KCU_csseMGRAVw-dgmd75XXicVDe5b7uYhR85slVr0zrEJfxT0VDOjewldZmAbf1s6hZ4GqqxhiBlkSkHJcaMsTB4xSdWjWguQMkCgJIQ73DPM1-uFcxDMRhec1iWhv5VmbqUDDfXih4H2KWz1b16rMKkfp1BZw7SkijHSR6r7vIiXFQHld_Z1GlBc4P54Z6bz6Q"/><span class="font-headline-sm text-headline-sm font-bold text-primary tracking-tight hidden sm:inline">Mầm Kids</span></a></div><div class="hidden md:flex flex-1 max-w-md relative"><input class="w-full bg-surface-container-low text-on-surface placeholder:text-outline font-body-md text-body-md py-2.5 pl-11 pr-space-md rounded-full border-none outline-none focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/20 transition-all shadow-[0_2px_8px_rgba(45,36,30,0.04)]" placeholder="Tìm kiếm quần áo cho bé..." type="text"/><span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span></div><div class="flex items-center gap-space-sm sm:gap-space-md shrink-0"><button class="relative p-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all flex items-center justify-center" type="button"><span class="material-symbols-outlined text-[24px]">favorite</span><span class="absolute top-1 right-1 w-4 h-4 bg-secondary-container text-on-secondary-container font-label-sm text-[10px] rounded-full flex items-center justify-center font-bold">3</span></button><a class="relative p-2 rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all flex items-center justify-center" data-path="gio-hang" href="#"><span class="material-symbols-outlined text-[24px]">local_mall</span><span class="absolute top-1 right-1 w-4 h-4 bg-primary text-on-primary font-label-sm text-[10px] rounded-full flex items-center justify-center font-bold">2</span></a><a class="w-8 h-8 rounded-full bg-primary flex items-center justify-center ml-1 text-on-primary hover:bg-primary-container transition-colors" data-path="tai-khoan-cua-toi" href="#"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></a></div></div><nav class="hidden lg:flex items-center gap-space-xs pb-3 pt-1 border-t border-surface-variant/40" data-active-classes="bg-primary-container text-on-primary-container font-bold rounded-lg"><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-label-md text-label-md" data-path="trang-chu" href="#">Trang chủ</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-label-md text-label-md" data-path="san-pham" href="#">Sản phẩm</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-label-md text-label-md" data-path="be-trai" href="#">Bé trai</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-label-md text-label-md" data-path="be-gai" href="#">Bé gái</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-label-md text-label-md" data-path="phoi-do-&amp;-combo" href="#">Phối đồ &amp; Combo</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-label-md text-label-md" data-path="tu-van-size" href="#">Tư vấn size</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-label-md text-label-md" data-path="gioi-thieu" href="#">Giới thiệu</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-label-md text-label-md" data-path="huong-dan-&amp;-ho-tro" href="#">Hướng dẫn &amp; Hỗ trợ</a></nav></div></header><main class="w-full pt-36 bg-background"><div class="flex flex-col w-full">
 <div class="max-w-[1440px] w-full mx-auto px-margin py-6">
 <!-- Breadcrumb & Step Navigation Bar -->
