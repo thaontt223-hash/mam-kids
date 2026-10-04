@@ -1020,7 +1020,55 @@ window.addEventListener('click', function (event) {
     cards[0].parentElement.appendChild(message);
   }
 
-  function filterProducts() {
+  let gender = new URLSearchParams(location.search).get('gender') || '';
+
+const genderButtons = [...document.querySelectorAll('aside button')]
+  .filter(button =>
+    ['Tất cả', 'Bé trai', 'Bé gái'].includes(
+      button.textContent.trim()
+    )
+  );
+
+function matchesGender(name) {
+  const isDress = name.includes('vay');
+  const isBoyShirt = name.includes('ao so mi be trai');
+
+  if (gender === 'boy') return !isDress;
+  if (gender === 'girl') return !isBoyShirt;
+  return true;
+}
+
+function updateGenderButtons() {
+  genderButtons.forEach(button => {
+    const text = button.textContent.trim();
+    const active =
+      (text === 'Tất cả' && !gender) ||
+      (text === 'Bé trai' && gender === 'boy') ||
+      (text === 'Bé gái' && gender === 'girl');
+
+    button.style.backgroundColor = active ? '#0b6636' : '#fff1e8';
+    button.style.color = active ? '#ffffff' : '#453b35';
+  });
+}
+
+genderButtons.forEach(button => {
+  button.addEventListener('click', function () {
+    const text = button.textContent.trim();
+
+    gender = text === 'Bé trai' ? 'boy' :
+      text === 'Bé gái' ? 'girl' : '';
+
+    const url = new URL(location.href);
+    if (gender) url.searchParams.set('gender', gender);
+    else url.searchParams.delete('gender');
+
+    history.replaceState(null, '', url);
+    updateGenderButtons();
+    filterProducts();
+  });
+});
+
+updateGenderButtons();function filterProducts() {
     const selected = boxes.filter(box => box.checked)
       .map(box => normalize(
         box.closest('label').querySelector('span').textContent
@@ -1058,7 +1106,13 @@ window.addEventListener('click', function (event) {
       }
 
       const visible = matchesType &&
-        matchesPrice && name.includes(keyword);
+  matchesPrice &&
+  matchesGender(name) &&
+  name.includes(keyword);
+        const visible = matchesType &&
+  matchesPrice &&
+  matchesGender(name) &&
+  name.includes(keyword);
 
       card.style.setProperty(
         'display', visible ? '' : 'none', 'important'
@@ -1086,7 +1140,19 @@ window.addEventListener('click', function (event) {
   );
 
   search?.addEventListener('input', filterProducts);
-  filterProducts();
+  window.addEventListener('click', function (event) {
+  const button = event.target.closest('button, a');
+
+  if (button?.textContent.trim() === 'Xóa hết') {
+    gender = '';
+
+    const url = new URL(location.href);
+    url.searchParams.delete('gender');
+    history.replaceState(null, '', url);
+
+    updateGenderButtons();
+  }
+}, true);filterProducts();
 })();
 </script>
 (function () {
