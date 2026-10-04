@@ -601,4 +601,29 @@ window.addEventListener('click', function (event) {
   localStorage.setItem('mamKidsCheckoutCart', JSON.stringify(cart));
   location.href = '/screen_09_thanh_to_n/code.html?mode=cart';
 }, true);
+</script><script>
+(function () {
+  function isHome(link) {
+    return link.dataset.path === 'trang-chu' ||
+      link.textContent.replace(/\s+/g, ' ').trim() === 'Trang chủ' ||
+      [...link.querySelectorAll('.material-symbols-outlined')]
+        .some(icon => icon.textContent.trim() === 'home');
+  }
+
+  document.querySelectorAll('a, button').forEach(link => {
+    if (isHome(link) && link.tagName === 'A') {
+      link.href = '/';
+    }
+  });
+
+  window.addEventListener('click', function (event) {
+    const link = event.target.closest('a, button');
+
+    if (!link || !isHome(link)) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    window.location.assign('/');
+  }, true);
+})();
 </script>/body></html>
