@@ -1068,7 +1068,42 @@ genderButtons.forEach(button => {
   });
 });
 
-updateGenderButtons();function filterProducts() {
+updateGenderButtons();const ageHeading = [...document.querySelectorAll('aside h3')]
+  .find(el => el.textContent.includes('Nhóm tuổi'));
+
+const ageBoxes = ageHeading
+  ? [...ageHeading.parentElement.querySelectorAll(
+      'input[type="checkbox"]'
+    )]
+  : [];
+
+ageBoxes.forEach(input => {
+  input.checked = false;
+  input.addEventListener('change', filterProducts);
+});
+
+function matchesAge(card) {
+  const selected = ageBoxes.filter(input => input.checked);
+  if (!selected.length) return true;
+
+  const ageText = [...card.querySelectorAll('span')]
+    .find(el => /^\s*\d+\s*[–—-]\s*\d+\s*tuổi\s*$/.test(
+      el.textContent
+    ))?.textContent || '';
+
+  const productRange = ageText.match(/\d+/g)?.map(Number);
+  if (!productRange || productRange.length < 2) return false;
+
+  return selected.some(input => {
+    const selectedRange = input.closest('label')
+      .textContent.match(/\d+/g)?.map(Number);
+
+    if (!selectedRange || selectedRange.length < 2) return false;
+
+    return productRange[0] <= selectedRange[1] &&
+      productRange[1] >= selectedRange[0];
+  });
+}function filterProducts() {
     const selected = boxes.filter(box => box.checked)
       .map(box => normalize(
         box.closest('label').querySelector('span').textContent
@@ -1109,6 +1144,7 @@ updateGenderButtons();function filterProducts() {
         const visible = matchesType &&
   matchesPrice &&
   matchesGender(name) &&
+  matchesAge(card) &&
   name.includes(keyword);
 
       card.style.setProperty(
@@ -1142,7 +1178,9 @@ updateGenderButtons();function filterProducts() {
 
   if (button?.textContent.trim() === 'Xóa hết') {
     gender = '';
-
+ageBoxes.forEach(input => {
+  input.checked = false;
+});
     const url = new URL(location.href);
     url.searchParams.delete('gender');
     history.replaceState(null, '', url);
