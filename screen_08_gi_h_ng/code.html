@@ -553,7 +553,63 @@ document.querySelectorAll('a, button').forEach(function (element) {
     const quantity = cart.reduce((sum, item) => sum + item.quantity, 0);
     const subtotal = cart.reduce(
       (sum, item) => sum + item.price * item.quantity, 0);
-    const discount = Math.round(subtotal * 0.1);
+    const coupon = localStorage.getItem('mamKidsCoupon') || '';
+
+const discount = coupon === 'MAMKIDS10'
+  ? Math.round(subtotal * 0.1)
+  : coupon === 'WELCOME50'
+    ? Math.min(50000, subtotal)
+    : 0;
+
+const couponInput = summary.querySelector(
+  'input[placeholder="Nhập mã ưu đãi..."]'
+);
+
+const voucherLabel = [...summary.querySelectorAll('span')]
+  .find(el => !el.children.length &&
+    el.textContent.trim().startsWith('Ưu đãi voucher'));
+
+if (voucherLabel) {
+  voucherLabel.textContent = coupon
+    ? 'Ưu đãi voucher (' + coupon + '):'
+    : 'Ưu đãi voucher:';
+}
+
+const savingsNote = summary.querySelector(
+  '.mam-coupon-note'
+) || [...summary.querySelectorAll('p')]
+  .find(el =>
+    el.textContent.includes('Ba mẹ vừa tiết kiệm') ||
+    el.textContent.includes('Ưu đãi MAMKIDS10')
+  );
+
+if (savingsNote) {
+  savingsNote.classList.add('mam-coupon-note');
+  savingsNote.textContent = coupon
+    ? coupon === 'FREESHIP'
+      ? 'Đã áp dụng FREESHIP: miễn phí vận chuyển.'
+      : 'Ưu đãi ' + coupon + ': giảm ' + money(discount)
+    : 'Chưa áp dụng mã giảm giá.';
+}
+
+if (couponInput) {
+  const icon = couponInput.parentElement.querySelector(
+    '.material-symbols-outlined'
+  );
+  if (icon) {
+    icon.style.display = coupon &&
+      couponInput.value.trim().toUpperCase() === coupon
+      ? '' : 'none';
+  }
+}
+
+localStorage.setItem('mamKidsCartTotals', JSON.stringify({
+  subtotal: subtotal,
+  discount: discount,
+  shipping: 0,
+  total: subtotal - discount,
+  coupon: coupon
+}));
 
     updateAmount('Tạm tính', money(subtotal),
       'Tạm tính (' + quantity + ' sản phẩm):');
@@ -581,7 +637,69 @@ document.querySelectorAll('a, button').forEach(function (element) {
     }
   }
 
-  render();
+ const couponInput = summary.querySelector(
+  'input[placeholder="Nhập mã ưu đãi..."]'
+);
+
+if (couponInput) {
+  couponInput.value = localStorage.getItem('mamKidsCoupon') || '';
+
+  const feedback = document.createElement('p');
+  feedback.setAttribute('aria-live', 'polite');
+  feedback.style.cssText = 'font-size:14px;margin-top:8px;';
+  couponInput.closest('.pt-2').appendChild(feedback);
+
+  function applyCoupon(code) {
+    code = code.trim().toUpperCase();
+    couponInput.value = code;
+
+    const valid = ['MAMKIDS10', 'WELCOME50', 'FREESHIP']
+      .includes(code);
+
+    if (valid) {
+      localStorage.setItem('mamKidsCoupon', code);
+      feedback.textContent = 'Đã áp dụng mã ' + code + '.';
+      feedback.style.color = '#0b6636';
+    } else {
+      localStorage.removeItem('mamKidsCoupon');
+      feedback.textContent = code
+        ? 'Mã giảm giá không hợp lệ.'
+        : 'Vui lòng nhập mã giảm giá.';
+      feedback.style.color = '#b42318';
+    }
+
+    render();
+  }
+
+  summary.addEventListener('click', function (event) {
+    const button = event.target.closest('button');
+    if (!button) return;
+
+    const text = button.textContent.trim();
+    const quickCode = text.match(/MAMKIDS10|WELCOME50|FREESHIP/);
+
+    if (text === 'Áp dụng' || quickCode) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      applyCoupon(quickCode ? quickCode[0] : couponInput.value);
+    }
+  }, true);
+
+  couponInput.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      applyCoupon(couponInput.value);
+    }
+  });
+
+  couponInput.addEventListener('input', function () {
+    const icon = couponInput.parentElement.querySelector(
+      '.material-symbols-outlined'
+    );
+    if (icon) icon.style.display = 'none';
+    feedback.textContent = '';
+  });
+} render();
 })();
 </script><script>
 window.addEventListener('click', function (event) {
